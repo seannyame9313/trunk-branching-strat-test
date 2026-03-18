@@ -26,7 +26,7 @@ while True:
 
 # ASKS THE USER TO ENTER COORDINATES 
 # PARSE_GUESS CONVERTS THE INPUT INTO A ROW AND COLUMN
-    guess = input("Enter your shot (e.g. B7): ")
+   # guess = input("Enter your shot (e.g. B7): ")
 
     result = parse_guess(guess)
 
