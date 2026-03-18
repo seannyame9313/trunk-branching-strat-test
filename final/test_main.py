@@ -1,8 +1,8 @@
 #  IMPORTS FUNCTIONS FROM BOARD_DISPLAY, SHIP_PLACEMENT AND GAME_LOGIC
 
-from board_display import create_board, print_boards, print_single_board
-from ship_placement import place_ships
-from game_logic import parse_guess, take_shot, computer_shot, check_win
+from test_board_display import create_board, print_boards, print_single_board
+from test_ship_placement import place_ships
+from test_game_logic import parse_guess, take_shot, computer_shot, check_win
 
 # CREATES TO SEPARATE BOARDS. ONE FOR THE PLAYER AND ONE FOR THE COMPUTER (IMPORTED FUNCTION FROM BOARD_DISPLAY FILE)
 player_board = create_board()

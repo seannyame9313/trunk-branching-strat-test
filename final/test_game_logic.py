@@ -2,7 +2,7 @@
 # THIS FILE HANDLES ALL THE "RULES" OF THE GAME
 
 import random
-from board_display import ROW_LETTERS, WATER, SHIP, HIT, MISS
+from test_board_display import ROW_LETTERS, WATER, SHIP, HIT, MISS
 
 def parse_guess(guess):
     """
