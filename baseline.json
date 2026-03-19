@@ -1,0 +1,61 @@
+{
+  "environment": "production",
+  "region": "eu-west-1",
+  "vpc": {
+    "cidr_block": "10.0.0.0/16",
+    "public_subnets": ["10.0.1.0/24", "10.0.2.0/24"],
+    "private_subnets": ["10.0.10.0/24", "10.0.11.0/24"],
+    "internet_gateway_attached": true,
+    "nat_gateway_enabled": true
+  },
+  "compute": {
+    "instance_type": "t3.medium",
+    "instance_count": 2,
+    "auto_scaling_enabled": true,
+    "ami_id": "ami-12345678",
+    "public_ip_assigned": false
+  },
+  "load_balancer": {
+    "type": "application",
+    "https_enabled": true,
+    "tls_version": "TLS1.2",
+    "deletion_protection": true
+  },
+  "security": {
+    "security_groups": {
+      "allow_ssh_from": ["10.0.0.0/16"],
+      "allow_http_from": ["0.0.0.0/0"],
+      "allow_https_from": ["0.0.0.0/0"]
+    },
+    "waf_enabled": true,
+    "shield_enabled": true
+  },
+  "database": {
+    "engine": "postgres",
+    "engine_version": "14",
+    "multi_az": true,
+    "storage_encrypted": true,
+    "publicly_accessible": false,
+    "backup_retention_days": 7
+  },
+  "storage": {
+    "s3_bucket_encryption": true,
+    "versioning_enabled": true,
+    "public_access_blocked": true
+  },
+  "iam": {
+    "mfa_required": true,
+    "admin_users": ["alice", "bob"],
+    "least_privilege_enforced": true
+  },
+  "monitoring": {
+    "cloudwatch_enabled": true,
+    "log_retention_days": 30,
+    "alerts_configured": true
+  },
+  "tags": {
+    "owner": "platform-team",
+    "cost_center": "cc-1234",
+    "environment": "production"
+  }
+}
