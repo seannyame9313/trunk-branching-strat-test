@@ -1,5 +1,12 @@
 import json
 
+# ✅ FEATURE FLAGS (ADDED HERE)
+FEATURE_FLAGS = {
+    "enable_severity": True,
+    "enable_nested_compare": True,
+    "enable_print_output": True,
+}
+
 """
 High level flow:
 Load baseline.json and current.json into memory as dictionaries
@@ -14,40 +21,63 @@ def compare_dicts(baseline_dict, current_dict):
 
     for key in baseline_dict:
         if key not in current_dict:
+
+            # ✅ SIMPLIFIED FEATURE FLAG (severity)
+            if FEATURE_FLAGS["enable_severity"]:
+                severity_value = determine_severity(key, baseline_dict[key], None)
+            else:
+                severity_value = None
+
             differences.append({
                 "key": key,
                 "type": "missing_in_current",
                 "baseline": baseline_dict[key],
                 "current": None,
-                "severity": determine_severity(key, baseline_dict[key], None)
+                "severity": severity_value
             })
             continue
 
         baseline_value = baseline_dict[key]
         current_value = current_dict[key]
 
+        # ✅ FEATURE FLAG (nested comparison stays the same)
         if isinstance(baseline_value, dict) and isinstance(current_value, dict):
-            nested = compare_dicts(baseline_value, current_value)
-            differences.extend(nested)
+            if FEATURE_FLAGS["enable_nested_compare"]:
+                nested = compare_dicts(baseline_value, current_value)
+                differences.extend(nested)
             continue
 
         if baseline_value != current_value:
+
+            # ✅ SIMPLIFIED FEATURE FLAG (severity)
+            if FEATURE_FLAGS["enable_severity"]:
+                severity_value = determine_severity(key, baseline_value, current_value)
+            else:
+                severity_value = None
+
             differences.append({
                 "key": key,
                 "type": "value_changed",
                 "baseline": baseline_value,
                 "current": current_value,
-                "severity": determine_severity(key, baseline_value, current_value)
+                "severity": severity_value
             })
 
     for key in current_dict:
         if key not in baseline_dict:
+
+            # ✅ SIMPLIFIED FEATURE FLAG (severity)
+            if FEATURE_FLAGS["enable_severity"]:
+                severity_value = determine_severity(key, None, current_dict[key])
+            else:
+                severity_value = None
+
             differences.append({
                 "key": key,
                 "type": "unexpected_in_current",
                 "baseline": None,
                 "current": current_dict[key],
-                "severity": determine_severity(key, None, current_dict[key])
+                "severity": severity_value
             })
 
     return differences
@@ -113,7 +143,10 @@ def main():
     print("\n", current)
 
     diffs = compare_dicts(baseline, current)
-    print_differences(diffs)
+
+    # ✅ FEATURE FLAG (output)
+    if FEATURE_FLAGS["enable_print_output"]:
+        print_differences(diffs)
 
 
 # ✅ ONLY RUNS WHEN EXECUTED DIRECTLY (NOT DURING TESTS)
