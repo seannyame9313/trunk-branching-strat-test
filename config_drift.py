@@ -8,27 +8,11 @@ Record each difference with: key, type, baseline, current, severity
 Print a readable report with TYPE, BASELINE, CURRENT, SEVERITY
 End programme
 """
-# THIS OPENS THE BASELINE AND CURRENT JSON FILES AND TURNS THEM INTO PYTHON DICTIONARIES
-with open('baseline.json', 'r') as file:
-    baseline = json.load(file)
-with open('current.json', 'r') as file:
-    current = json.load(file)
-
-# PRINTING THE BASLINE AND CURRENT DICT'S 
-print('\nBaseline:')
-print ("\n",baseline)
-print(type(baseline)) #JUST TO CHECK IF ITS A DICTIONARY
-print('\nCurrent:')
-print ("\n",current)
 
 def compare_dicts(baseline_dict, current_dict):
-    # THIS LIST IS USED TO STORE ALL THE DIFFERENCES WE FIND BETWEEN THE TWO DICTIONARIES
-    differences = []  
+    differences = []
 
-    # CHECK KEYS IN BASELINE
     for key in baseline_dict:
-
-        # IF KEY IS MISSING IN CURRENT
         if key not in current_dict:
             differences.append({
                 "key": key,
@@ -42,13 +26,11 @@ def compare_dicts(baseline_dict, current_dict):
         baseline_value = baseline_dict[key]
         current_value = current_dict[key]
 
-        # IF BOTH VALUES ARE DICTIONARIES, RECURSIVELY COMPARE THEM (NESTED DICTIONARIES)
         if isinstance(baseline_value, dict) and isinstance(current_value, dict):
             nested = compare_dicts(baseline_value, current_value)
             differences.extend(nested)
             continue
 
-        # IF THE VALUES DIFFER
         if baseline_value != current_value:
             differences.append({
                 "key": key,
@@ -58,7 +40,6 @@ def compare_dicts(baseline_dict, current_dict):
                 "severity": determine_severity(key, baseline_value, current_value)
             })
 
-    # CHECK KEYS THAT APPEAR ONLY IN CURRENT
     for key in current_dict:
         if key not in baseline_dict:
             differences.append({
@@ -71,9 +52,8 @@ def compare_dicts(baseline_dict, current_dict):
 
     return differences
 
-# USED COPILOT TO GENERATE THIS FUNCTION TO PRINT THE DIFFERENCES IN A READABLE FORMAT
-def print_differences(differences):
 
+def print_differences(differences):
     if not differences:
         print("\nNO DIFFERENCES FOUND\n")
         return
@@ -81,7 +61,6 @@ def print_differences(differences):
     print("\nDIFFERENCES:\n")
 
     for i, diff in enumerate(differences, start=1):
-        # USE GET SO WE DO NOT CRASH IF A FIELD IS MISSING
         label = diff.get("path") or diff.get("key") or "<unknown>"
 
         print(f"{i}. {label}")
@@ -90,13 +69,12 @@ def print_differences(differences):
         print(f"    CURRENT  : {diff.get('current')}")
         print(f"    SEVERITY : {diff.get('severity')}\n")
 
-# THIS FUNCTION DECIDES THE SEVERITY BASED ON THE KEY AND VALUE CHANGES TO ASSIGN RISK LEVELS
+
 def determine_severity(key, baseline_value, current_value):
     # CRITICAL RISKS
     if key in ["publicly_accessible", "public_access_blocked"]:
         return "critical risk"
     if key == "allow_ssh_from":
-        # ANY SSH FROM 0.0.0.0/0 IS CRITICAL
         curr = current_value or []
         if isinstance(curr, list) and "0.0.0.0/0" in curr:
             return "critical risk"
@@ -108,19 +86,36 @@ def determine_severity(key, baseline_value, current_value):
     if key in ["auto_scaling_enabled", "multi_az", "storage_encrypted"]:
         return "high risk"
     if key == "tls_version":
-        # DOWNGRADING TLS IS HIGH RISK
         return "high risk"
     if key == "public_ip_assigned":
-        # PUBLIC IP ON INSTANCES CAN BE HIGH RISK
         return "high risk"
 
     # MEDIUM RISKS
     if key in ["ami_id", "engine_version", "log_retention_days", "instance_count", "deletion_protection"]:
         return "medium risk"
 
-    # DEFAULT LOW RISK
     return "low risk"
 
-# MAIN EXECUTION
-diffs = compare_dicts(baseline, current)
-print_differences(diffs)
+
+# ✅ MAIN FUNCTION (safe for pytest)
+def main():
+    with open('baseline.json', 'r') as file:
+        baseline = json.load(file)
+
+    with open('current.json', 'r') as file:
+        current = json.load(file)
+
+    print('\nBaseline:')
+    print("\n", baseline)
+    print(type(baseline))
+
+    print('\nCurrent:')
+    print("\n", current)
+
+    diffs = compare_dicts(baseline, current)
+    print_differences(diffs)
+
+
+# ✅ ONLY RUNS WHEN EXECUTED DIRECTLY (NOT DURING TESTS)
+if __name__ == "__main__":
+    main()
